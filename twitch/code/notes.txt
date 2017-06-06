@@ -1,0 +1,12 @@
+Combine these with the other notes later
+
+- possible bug in gbre__parse_group when it trys to parse a []
+	- it adds in a few extra characters that should not be in there
+		- gbre__parse_group passs in (re, pattern, len, offset, &offset) for the 
+		  (gbRegex *re, char const *pattern, isize len, isize offset, isize 
+		  *new_offset) arguements
+
+- gbre_match
+	-
+
+

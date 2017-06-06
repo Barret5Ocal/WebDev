@@ -1,0 +1,23 @@
+write down notes about gb_regex.h in order to figure out how it works so you can fix 
+it.
+
+I need to start with gbre_compile to see if it compiles correctly
+	- starts by getting all the info for the parse and then calls gbre__parse
+
+pattern = regular expression string that I passed to the compile function
+buffern = where the compiled operation codes(ops) go
+
+- gbre__parse
+	- while loop that runs a swtich statement that test the individual chars in the 
+	  pattern that I passed it to be compiled. 
+	- the offset variable is set to allow the loop to get the next char in the 
+	  pattern
+	- all cases at one point or another calls the gbre__emit_ops function
+		- this function adds the ops to the buffer
+	- if the switch hits the default case
+		- it will loop through the characters until it reachs the next meta 
+		  characters and count how many non-meta characters there are until then 
+		- add in the GBRE_OP_EXACT_MATCH op and then add the characters to the
+		  buffer
+	- if the switch hit the '[' case it calls gbre__parse_group
+		
