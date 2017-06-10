@@ -1,6 +1,6 @@
 @echo off
 
-mkdir ..\..\..\builds\twitch
+IF NOT EXIST ..\..\..\builds\twitch THEN mkdir ..\..\..\builds\twitch
 
 pushd ..\..\..\builds\twitch
 

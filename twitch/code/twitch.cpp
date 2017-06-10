@@ -48,10 +48,11 @@ char *Host = "irc.twitch.tv";
 int Port = 6667;
 char *PortStr = "6667";
 char *Nick = "barret5ocal_tog_dev";
+char *BotName = "b50Bot";
 char *Pass = "oauth:0qo03hcn20kfo2wkjlrgw0f6hxzdtx";
-char *Chan = "#barret5ocal_tog_dev";
+char *Chan = "barret5ocal_tog_dev";
 float Rate = 20.0f/30.0f;
-char *BannedWords[] = {"bitch", "fuckernutter"};
+char *BannedWords[] = {"asswipe", "fuckernutter"};
 
 int SocketHandle; 
 
@@ -123,7 +124,6 @@ bool CreateSocketTCP()
     }
     
     freeaddrinfo(Result);
-    
     
     return 0;
 }
@@ -225,14 +225,29 @@ void ReceivePacketsTCP(bot_state *Bot)
                     {
                         if(!Q_strcmp((unsigned char *)"!quit", (unsigned char *)Response.Message.String))
                         {
-                            char QuitMsg[32] = {};
-                            int Yes = stbsp_sprintf((char *)QuitMsg, "PRIVMSG %s :I am quiting\r\n", Chan);
+                            // NOTE(Barret5Ocal): Always make sure the buffer is big enough. the message won't send correctly if it is not
+                            char QuitMsg[50] = {};
+                            int Yes = stbsp_sprintf((char *)QuitMsg, "PRIVMSG #%s :I am quiting\r\n", Chan);
                             SendPacketTCP(QuitMsg, sizeof(QuitMsg));
                             break; 
                         }
                         if(!Q_strcmp((unsigned char *)"!membership", (unsigned char *)Response.Message.String))
                         {
                             SendPacketTCP("CAP REQ :twitch.tv/membership", Q_strlen("CAP REQ :twitch.tv/membership"));
+                        }
+                        if(!Q_strcmp((unsigned char *)"!mod", (unsigned char *)Response.Message.String))
+                        {
+                            char ModeMsg[100] = {};
+                            char *NewMode = "barret5ocal_TOG";
+                            int Yes = stbsp_sprintf(ModeMsg, "MODE %s +o %s", NewMode, Chan);
+                            SendPacketTCP(ModeMsg, sizeof(ModeMsg));
+                        }
+                        if(!Q_strcmp((unsigned char *)"!message", (unsigned char *)Response.Message.String))
+                        {
+                            char Msg[50] = {};
+                            int Yes = stbsp_sprintf((char *)Msg, "PRIVMSG #%s :quick message\r\n", Chan);
+                            SendPacketTCP(Msg, sizeof(Msg));
+                            
                         }
                     }
                     else 
@@ -279,28 +294,24 @@ void SocketClose()
 // NOTE(Barret5Ocal): TCP is needed to interact with twitch
 int main(int Argc, char *Argv[])
 {
-    int one = 1;
-    char *two = "2";
-    
-    int three = one * *two; 
     
     bot_state Bot = {};
     
     InitializeSockets();
     CreateSocketTCP();
     
-    char DataUser[50] = {};
     char DataPass[50] = {};
+    char DataUser[50] = {};
     char DataNick[50] = {};
     char DataJoin[50] = {};
     
-    stbsp_sprintf(DataUser, "USER %s\r\n", Nick);
     stbsp_sprintf(DataPass, "PASS %s\r\n", Pass);
+    stbsp_sprintf(DataUser, "USER %s\r\n", Nick);
     stbsp_sprintf(DataNick, "NICK %s\r\n", Nick);
-    stbsp_sprintf(DataJoin, "JOIN %s\r\n", Chan);
+    stbsp_sprintf(DataJoin, "JOIN #%s\r\n", Chan);
     
-    SendPacketTCP(DataUser, sizeof(DataUser));
     SendPacketTCP(DataPass, sizeof(DataPass));
+    SendPacketTCP(DataUser, sizeof(DataUser));
     SendPacketTCP(DataNick, sizeof(DataNick));
     SendPacketTCP(DataJoin, sizeof(DataJoin));
     
